@@ -135,3 +135,4 @@
 	usb2_vbus-supply = <&reg_usb2_vbus>;
 	status = "okay";
 };
+// USB供电为GPIO41置1
