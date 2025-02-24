@@ -1,0 +1,1 @@
+cp arch/arm/boot/dts/xilinx/zynq-zc701_antminer_t9.dtb arch/arm/boot/

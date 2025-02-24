@@ -1,0 +1,1 @@
+obj-$(CONFIG_ZYNQ_LOGIC_ANALYZER)	+= zynq_logic_analyzer.o

@@ -27,97 +27,97 @@
 /* Offsets into SLCR regmap */
 
 /* FPGA Software Reset Control */
-#define SLCR_FPGA_RST_CTRL_OFFSET	0x240
+#define SLCR_FPGA_RST_CTRL_OFFSET 0x240
 /* Level Shifters Enable */
-#define SLCR_LVL_SHFTR_EN_OFFSET	0x900
+#define SLCR_LVL_SHFTR_EN_OFFSET 0x900
 
 /* Constant Definitions */
 
 /* Control Register */
-#define CTRL_OFFSET			0x00
+#define CTRL_OFFSET 0x00
 /* Lock Register */
-#define LOCK_OFFSET			0x04
+#define LOCK_OFFSET 0x04
 /* Interrupt Status Register */
-#define INT_STS_OFFSET			0x0c
+#define INT_STS_OFFSET 0x0c
 /* Interrupt Mask Register */
-#define INT_MASK_OFFSET			0x10
+#define INT_MASK_OFFSET 0x10
 /* Status Register */
-#define STATUS_OFFSET			0x14
+#define STATUS_OFFSET 0x14
 /* DMA Source Address Register */
-#define DMA_SRC_ADDR_OFFSET		0x18
+#define DMA_SRC_ADDR_OFFSET 0x18
 /* DMA Destination Address Reg */
-#define DMA_DST_ADDR_OFFSET		0x1c
+#define DMA_DST_ADDR_OFFSET 0x1c
 /* DMA Source Transfer Length */
-#define DMA_SRC_LEN_OFFSET		0x20
+#define DMA_SRC_LEN_OFFSET 0x20
 /* DMA Destination Transfer */
-#define DMA_DEST_LEN_OFFSET		0x24
+#define DMA_DEST_LEN_OFFSET 0x24
 /* Unlock Register */
-#define UNLOCK_OFFSET			0x34
+#define UNLOCK_OFFSET 0x34
 /* Misc. Control Register */
-#define MCTRL_OFFSET			0x80
+#define MCTRL_OFFSET 0x80
 
 /* Control Register Bit definitions */
 
 /* Signal to reset FPGA */
-#define CTRL_PCFG_PROG_B_MASK		BIT(30)
+#define CTRL_PCFG_PROG_B_MASK BIT(30)
 /* Enable PCAP for PR */
-#define CTRL_PCAP_PR_MASK		BIT(27)
+#define CTRL_PCAP_PR_MASK BIT(27)
 /* Enable PCAP */
-#define CTRL_PCAP_MODE_MASK		BIT(26)
+#define CTRL_PCAP_MODE_MASK BIT(26)
 /* Lower rate to allow decrypt on the fly */
-#define CTRL_PCAP_RATE_EN_MASK		BIT(25)
+#define CTRL_PCAP_RATE_EN_MASK BIT(25)
 /* System booted in secure mode */
-#define CTRL_SEC_EN_MASK		BIT(7)
+#define CTRL_SEC_EN_MASK BIT(7)
 
 /* Miscellaneous Control Register bit definitions */
 /* Internal PCAP loopback */
-#define MCTRL_PCAP_LPBK_MASK		BIT(4)
+#define MCTRL_PCAP_LPBK_MASK BIT(4)
 
 /* Status register bit definitions */
 
 /* FPGA init status */
-#define STATUS_DMA_Q_F			BIT(31)
-#define STATUS_DMA_Q_E			BIT(30)
-#define STATUS_PCFG_INIT_MASK		BIT(4)
+#define STATUS_DMA_Q_F BIT(31)
+#define STATUS_DMA_Q_E BIT(30)
+#define STATUS_PCFG_INIT_MASK BIT(4)
 
 /* Interrupt Status/Mask Register Bit definitions */
 /* DMA command done */
-#define IXR_DMA_DONE_MASK		BIT(13)
+#define IXR_DMA_DONE_MASK BIT(13)
 /* DMA and PCAP cmd done */
-#define IXR_D_P_DONE_MASK		BIT(12)
- /* FPGA programmed */
-#define IXR_PCFG_DONE_MASK		BIT(2)
-#define IXR_ERROR_FLAGS_MASK		0x00F0C860
-#define IXR_ALL_MASK			0xF8F7F87F
+#define IXR_D_P_DONE_MASK BIT(12)
+/* FPGA programmed */
+#define IXR_PCFG_DONE_MASK BIT(2)
+#define IXR_ERROR_FLAGS_MASK 0x00F0C860
+#define IXR_ALL_MASK 0xF8F7F87F
 
 /* Miscellaneous constant values */
 
 /* Invalid DMA addr */
-#define DMA_INVALID_ADDRESS		GENMASK(31, 0)
+#define DMA_INVALID_ADDRESS GENMASK(31, 0)
 /* Used to unlock the dev */
-#define UNLOCK_MASK			0x757bdf0d
+#define UNLOCK_MASK 0x757bdf0d
 /* Timeout for polling reset bits */
-#define INIT_POLL_TIMEOUT		2500000
+#define INIT_POLL_TIMEOUT 2500000
 /* Delay for polling reset bits */
-#define INIT_POLL_DELAY			20
+#define INIT_POLL_DELAY 20
 /* Signal this is the last DMA transfer, wait for the AXI and PCAP before
  * interrupting
  */
-#define DMA_SRC_LAST_TRANSFER		1
+#define DMA_SRC_LAST_TRANSFER 1
 /* Timeout for DMA completion */
-#define DMA_TIMEOUT_MS			5000
+#define DMA_TIMEOUT_MS 5000
 
 /* Masks for controlling stuff in SLCR */
 /* Disable all Level shifters */
-#define LVL_SHFTR_DISABLE_ALL_MASK	0x0
+#define LVL_SHFTR_DISABLE_ALL_MASK 0x0
 /* Enable Level shifters from PS to PL */
-#define LVL_SHFTR_ENABLE_PS_TO_PL	0xa
+#define LVL_SHFTR_ENABLE_PS_TO_PL 0xa
 /* Enable Level shifters from PL to PS */
-#define LVL_SHFTR_ENABLE_PL_TO_PS	0xf
+#define LVL_SHFTR_ENABLE_PL_TO_PS 0xf
 /* Enable global resets */
-#define FPGA_RST_ALL_MASK		0xf
+#define FPGA_RST_ALL_MASK 0xf
 /* Disable global resets */
-#define FPGA_RST_NONE_MASK		0x0
+#define FPGA_RST_NONE_MASK 0x0
 
 struct zynq_fpga_priv {
 	int irq;
@@ -140,14 +140,13 @@ static inline void zynq_fpga_write(struct zynq_fpga_priv *priv, u32 offset,
 	writel(val, priv->io_base + offset);
 }
 
-static inline u32 zynq_fpga_read(const struct zynq_fpga_priv *priv,
-				 u32 offset)
+static inline u32 zynq_fpga_read(const struct zynq_fpga_priv *priv, u32 offset)
 {
 	return readl(priv->io_base + offset);
 }
 
 #define zynq_fpga_poll_timeout(priv, addr, val, cond, sleep_us, timeout_us) \
-	readl_poll_timeout(priv->io_base + addr, val, cond, sleep_us, \
+	readl_poll_timeout(priv->io_base + addr, val, cond, sleep_us,       \
 			   timeout_us)
 
 /* Cause the specified irq mask bits to generate IRQs */
@@ -350,13 +349,12 @@ static int zynq_fpga_ops_write_init(struct fpga_manager *mgr,
 	ctrl = zynq_fpga_read(priv, CTRL_OFFSET);
 	if (info->flags & FPGA_MGR_ENCRYPTED_BITSTREAM)
 		zynq_fpga_write(priv, CTRL_OFFSET,
-				(CTRL_PCAP_PR_MASK | CTRL_PCAP_MODE_MASK
-				 | CTRL_PCAP_RATE_EN_MASK | ctrl));
+				(CTRL_PCAP_PR_MASK | CTRL_PCAP_MODE_MASK |
+				 CTRL_PCAP_RATE_EN_MASK | ctrl));
 	else
 		zynq_fpga_write(priv, CTRL_OFFSET,
-				(CTRL_PCAP_PR_MASK | CTRL_PCAP_MODE_MASK
-				 | ctrl));
-
+				(CTRL_PCAP_PR_MASK | CTRL_PCAP_MODE_MASK |
+				 ctrl));
 
 	/* We expect that the command queue is empty right now. */
 	status = zynq_fpga_read(priv, STATUS_OFFSET);
@@ -400,13 +398,13 @@ static int zynq_fpga_ops_write(struct fpga_manager *mgr, struct sg_table *sgt)
 	for_each_sg(sgt->sgl, sg, sgt->nents, i) {
 		if ((sg->offset % 8) || (sg->length % 4)) {
 			dev_err(&mgr->dev,
-			    "Invalid bitstream, chunks must be aligned\n");
+				"Invalid bitstream, chunks must be aligned\n");
 			return -EINVAL;
 		}
 	}
 
-	priv->dma_nelms =
-	    dma_map_sg(mgr->dev.parent, sgt->sgl, sgt->nents, DMA_TO_DEVICE);
+	priv->dma_nelms = dma_map_sg(mgr->dev.parent, sgt->sgl, sgt->nents,
+				     DMA_TO_DEVICE);
 	if (priv->dma_nelms == 0) {
 		dev_err(&mgr->dev, "Unable to DMA map (TO_DEVICE)\n");
 		return -ENOMEM;
@@ -466,9 +464,7 @@ static int zynq_fpga_ops_write(struct fpga_manager *mgr, struct sg_table *sgt)
 out_report:
 	dev_err(&mgr->dev,
 		"%s: INT_STS:0x%x CTRL:0x%x LOCK:0x%x INT_MASK:0x%x STATUS:0x%x MCTRL:0x%x\n",
-		why,
-		intr_status,
-		zynq_fpga_read(priv, CTRL_OFFSET),
+		why, intr_status, zynq_fpga_read(priv, CTRL_OFFSET),
 		zynq_fpga_read(priv, LOCK_OFFSET),
 		zynq_fpga_read(priv, INT_MASK_OFFSET),
 		zynq_fpga_read(priv, STATUS_OFFSET),
@@ -495,8 +491,7 @@ static int zynq_fpga_ops_write_complete(struct fpga_manager *mgr,
 
 	err = zynq_fpga_poll_timeout(priv, INT_STS_OFFSET, intr_status,
 				     intr_status & IXR_PCFG_DONE_MASK,
-				     INIT_POLL_DELAY,
-				     INIT_POLL_TIMEOUT);
+				     INIT_POLL_DELAY, INIT_POLL_TIMEOUT);
 
 	/* Release 'PR' control back to the ICAP */
 	zynq_fpga_write(priv, CTRL_OFFSET,
@@ -561,20 +556,19 @@ static int zynq_fpga_probe(struct platform_device *pdev)
 	if (!priv)
 		return -ENOMEM;
 	spin_lock_init(&priv->dma_lock);
-
+	// 0xf8007000
 	priv->io_base = devm_platform_ioremap_resource(pdev, 0);
 	if (IS_ERR(priv->io_base))
 		return PTR_ERR(priv->io_base);
-
-	priv->slcr = syscon_regmap_lookup_by_phandle(dev->of_node,
-		"syscon");
+	// 0xf8000000
+	priv->slcr = syscon_regmap_lookup_by_phandle(dev->of_node, "syscon");
 	if (IS_ERR(priv->slcr)) {
 		dev_err(dev, "unable to get zynq-slcr regmap\n");
 		return PTR_ERR(priv->slcr);
 	}
 
 	init_completion(&priv->dma_done);
-
+	// 中断
 	priv->irq = platform_get_irq(pdev, 0);
 	if (priv->irq < 0)
 		return priv->irq;
@@ -605,8 +599,8 @@ static int zynq_fpga_probe(struct platform_device *pdev)
 
 	clk_disable(priv->clk);
 
-	mgr = fpga_mgr_register(dev, "Xilinx Zynq FPGA Manager",
-				&zynq_fpga_ops, priv);
+	mgr = fpga_mgr_register(dev, "Xilinx Zynq FPGA Manager", &zynq_fpga_ops,
+				priv);
 	if (IS_ERR(mgr)) {
 		dev_err(dev, "unable to register FPGA manager\n");
 		clk_unprepare(priv->clk);
@@ -635,7 +629,9 @@ static int zynq_fpga_remove(struct platform_device *pdev)
 
 #ifdef CONFIG_OF
 static const struct of_device_id zynq_fpga_of_match[] = {
-	{ .compatible = "xlnx,zynq-devcfg-1.0", },
+	{
+		.compatible = "xlnx,zynq-devcfg-1.0",
+	},
 	{},
 };
 
