@@ -1,0 +1,5 @@
+config ZYNQ_LOGIC_ANALYZER
+	tristate "support zynq logic analyzer"
+	depends on XILINX_DMA
+	help
+	  a driver of a logic analyzer based on zynq platform

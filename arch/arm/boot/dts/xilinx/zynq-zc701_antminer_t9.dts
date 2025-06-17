@@ -1,0 +1,202 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ *  Copyright (C) 2011 - 2015 Xilinx
+ *  Copyright (C) 2012 National Instruments Corp.
+ */
+/dts-v1/;
+#include "zynq-7000.dtsi"
+#include <dt-bindings/gpio/gpio.h>
+
+/ {
+	model = "Xilinx ZC7010 SPRAY board";
+	compatible = "xlnx,zynq-zc702", "xlnx,zynq-7000";
+
+	aliases {
+		ethernet0 = &gem0;
+		serial0 = &uart1;
+		mmc0 = &sdhci0;
+	};
+
+	memory@0 {
+		device_type = "memory";
+		reg = <0x0 0x40000000>;
+	};
+
+	chosen {
+		bootargs = "";
+		stdout-path = "serial0:115200n8";
+	};
+
+    
+  logic_analyzer: logic_analyzer@1 {
+      #address-cells = <1>;
+      #size-cells = <1>;
+      status = "okay";
+      compatible ="zynq_logic_analyzer";
+      dmas = <&axi_dma_1 1>;
+      dma-names = "rx";
+      reg = <0x60000000 0x20>;
+      clocks = <&clkc 15>;
+  };
+
+  axi_dma_1: dma@40400000 {
+    status = "okay";
+    #dma-cells = <1>;
+    clock-names = "s_axi_lite_aclk", "m_axi_s2mm_aclk";
+    clocks = <&clkc 15>, <&clkc 15>;
+    compatible = "xlnx,axi-dma-1.00.a";
+    interrupt-parent = <&intc>;
+    interrupts = <0 29 4>;
+    reg = <0x40400000 0x10000>;
+    xlnx,addrwidth = <0x20>;
+
+    dma-channel@40400030 {
+      compatible = "xlnx,axi-dma-s2mm-channel";
+      dma-channels = <0x1>;
+      interrupts = <0 29 4>;
+      xlnx,datawidth = <0x80>;
+    };
+  };
+};
+
+
+
+
+&clkc {
+	ps-clk-frequency = <33333333>;
+};
+
+&gem0 {
+	status = "okay";
+	phy-mode = "rgmii-id";
+	phy-handle = <&ethernet_phy>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_gem0_default>;
+	// phy-reset-gpio = <&gpio0 11 0>;
+	// phy-reset-active-low;
+
+	ethernet_phy: ethernet-phy@1 {
+		reg = <1>;
+	};
+};
+
+
+&pinctrl0 {
+	pinctrl_gem0_default: gem0-default {
+		mux {
+			function = "ethernet0";
+			groups = "ethernet0_0_grp";
+		};
+
+		conf {
+			groups = "ethernet0_0_grp";
+			slew-rate = <0>;
+			power-source = <2>;
+		};
+
+		conf-rx {
+			pins = "MIO22", "MIO23", "MIO24", "MIO25", "MIO26", "MIO27";
+			bias-high-impedance;
+			low-power-disable;
+		};
+
+		conf-tx {
+			pins = "MIO16", "MIO17", "MIO18", "MIO19", "MIO20", "MIO21";
+			bias-disable;
+			low-power-enable;
+		};
+
+		mux-mdio {
+			function = "mdio0";
+			groups = "mdio0_0_grp";
+		};
+
+		conf-mdio {
+			groups = "mdio0_0_grp";
+			slew-rate = <0>;
+			power-source = <2>;
+			bias-disable;
+		};
+	};
+
+
+	pinctrl_sdhci0_default: sdhci0-default {
+		mux {
+			groups = "sdio0_2_grp";
+			function = "sdio0";
+		};
+
+		conf {
+			groups = "sdio0_2_grp";
+			slew-rate = <0>;
+			power-source = <2>;
+			bias-disable;
+		};
+
+		mux-cd {
+			groups = "gpio0_46_grp";
+			function = "sdio0_cd";
+		};
+
+		conf-cd {
+			groups = "gpio0_46_grp";
+			bias-high-impedance;
+			bias-pull-up;
+			slew-rate = <0>;
+			power-source = <2>;
+		};
+
+		mux-wp {
+			groups = "gpio0_50_grp";
+			function = "sdio0_wp";
+		};
+
+		conf-wp {
+			groups = "gpio0_50_grp";
+			bias-high-impedance;
+			bias-pull-up;
+			slew-rate = <0>;
+			power-source = <2>;
+		};
+	};
+
+	pinctrl_uart1_default: uart1-default {
+		mux {
+			groups = "uart1_10_grp";
+			function = "uart1";
+		};
+
+		conf {
+			groups = "uart1_10_grp";
+			slew-rate = <0>;
+			power-source = <2>;
+		};
+
+		conf-rx {
+			pins = "MIO49";
+			bias-high-impedance;
+		};
+
+		conf-tx {
+			pins = "MIO48";
+			bias-disable;
+		};
+	};
+};
+
+
+&sdhci0 {
+	bootph-all;
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_sdhci0_default>;
+  disable-wp; // 禁用写保护
+};
+
+&uart1 {
+	bootph-all;
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_uart1_default>;
+};
+

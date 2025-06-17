@@ -34,7 +34,7 @@ static inline void fpga_mgr_fpga_remove(struct fpga_manager *mgr)
 static inline enum fpga_mgr_states fpga_mgr_state(struct fpga_manager *mgr)
 {
 	if (mgr->mops->state)
-		return  mgr->mops->state(mgr);
+		return mgr->mops->state(mgr);
 	return FPGA_MGR_STATE_UNKNOWN;
 }
 
@@ -45,10 +45,11 @@ static inline u64 fpga_mgr_status(struct fpga_manager *mgr)
 	return 0;
 }
 
-static inline int fpga_mgr_write(struct fpga_manager *mgr, const char *buf, size_t count)
+static inline int fpga_mgr_write(struct fpga_manager *mgr, const char *buf,
+				 size_t count)
 {
 	if (mgr->mops->write)
-		return  mgr->mops->write(mgr, buf, count);
+		return mgr->mops->write(mgr, buf, count);
 	return -EOPNOTSUPP;
 }
 
@@ -88,7 +89,7 @@ static inline int fpga_mgr_write_init(struct fpga_manager *mgr,
 				      const char *buf, size_t count)
 {
 	if (mgr->mops->write_init)
-		return  mgr->mops->write_init(mgr, info, buf, count);
+		return mgr->mops->write_init(mgr, info, buf, count);
 	return 0;
 }
 
@@ -96,7 +97,7 @@ static inline int fpga_mgr_write_sg(struct fpga_manager *mgr,
 				    struct sg_table *sgt)
 {
 	if (mgr->mops->write_sg)
-		return  mgr->mops->write_sg(mgr, sgt);
+		return mgr->mops->write_sg(mgr, sgt);
 	return -EOPNOTSUPP;
 }
 
@@ -187,9 +188,9 @@ static int fpga_mgr_parse_header_sg_first(struct fpga_manager *mgr,
 	mgr->state = FPGA_MGR_STATE_PARSE_HEADER;
 
 	sg_miter_start(&miter, sgt->sgl, sgt->nents, SG_MITER_FROM_SG);
-	if (sg_miter_next(&miter) &&
-	    miter.length >= info->header_size)
-		ret = fpga_mgr_parse_header(mgr, info, miter.addr, miter.length);
+	if (sg_miter_next(&miter) && miter.length >= info->header_size)
+		ret = fpga_mgr_parse_header(mgr, info, miter.addr,
+					    miter.length);
 	else
 		ret = -EAGAIN;
 	sg_miter_stop(&miter);
@@ -318,7 +319,7 @@ static int fpga_mgr_prepare_sg(struct fpga_manager *mgr,
 			return ret;
 		}
 		sg_miter_stop(&miter);
-	/*
+		/*
 	 * If -EAGAIN, more sg buffer is needed,
 	 * otherwise an error has occurred.
 	 */
@@ -462,8 +463,8 @@ static int fpga_mgr_buf_load_mapped(struct fpga_manager *mgr,
  * Return: 0 on success, negative error code otherwise.
  */
 static int fpga_mgr_buf_load(struct fpga_manager *mgr,
-			     struct fpga_image_info *info,
-			     const char *buf, size_t count)
+			     struct fpga_image_info *info, const char *buf,
+			     size_t count)
 {
 	struct page **pages;
 	struct sg_table sgt;
@@ -542,7 +543,7 @@ static int fpga_mgr_firmware_load(struct fpga_manager *mgr,
 	int ret;
 
 	dev_info(dev, "writing %s to %s\n", image_name, mgr->name);
-
+	dev_info(dev, "header size:%d\n", info->header_size);
 	mgr->state = FPGA_MGR_STATE_FIRMWARE_REQ;
 
 	ret = request_firmware(&fw, image_name, dev);
@@ -583,54 +584,54 @@ int fpga_mgr_load(struct fpga_manager *mgr, struct fpga_image_info *info)
 }
 EXPORT_SYMBOL_GPL(fpga_mgr_load);
 
-static const char * const state_str[] = {
-	[FPGA_MGR_STATE_UNKNOWN] =		"unknown",
-	[FPGA_MGR_STATE_POWER_OFF] =		"power off",
-	[FPGA_MGR_STATE_POWER_UP] =		"power up",
-	[FPGA_MGR_STATE_RESET] =		"reset",
+static const char *const state_str[] = {
+	[FPGA_MGR_STATE_UNKNOWN] = "unknown",
+	[FPGA_MGR_STATE_POWER_OFF] = "power off",
+	[FPGA_MGR_STATE_POWER_UP] = "power up",
+	[FPGA_MGR_STATE_RESET] = "reset",
 
 	/* requesting FPGA image from firmware */
-	[FPGA_MGR_STATE_FIRMWARE_REQ] =		"firmware request",
-	[FPGA_MGR_STATE_FIRMWARE_REQ_ERR] =	"firmware request error",
+	[FPGA_MGR_STATE_FIRMWARE_REQ] = "firmware request",
+	[FPGA_MGR_STATE_FIRMWARE_REQ_ERR] = "firmware request error",
 
 	/* Parse FPGA image header */
-	[FPGA_MGR_STATE_PARSE_HEADER] =		"parse header",
-	[FPGA_MGR_STATE_PARSE_HEADER_ERR] =	"parse header error",
+	[FPGA_MGR_STATE_PARSE_HEADER] = "parse header",
+	[FPGA_MGR_STATE_PARSE_HEADER_ERR] = "parse header error",
 
 	/* Preparing FPGA to receive image */
-	[FPGA_MGR_STATE_WRITE_INIT] =		"write init",
-	[FPGA_MGR_STATE_WRITE_INIT_ERR] =	"write init error",
+	[FPGA_MGR_STATE_WRITE_INIT] = "write init",
+	[FPGA_MGR_STATE_WRITE_INIT_ERR] = "write init error",
 
 	/* Writing image to FPGA */
-	[FPGA_MGR_STATE_WRITE] =		"write",
-	[FPGA_MGR_STATE_WRITE_ERR] =		"write error",
+	[FPGA_MGR_STATE_WRITE] = "write",
+	[FPGA_MGR_STATE_WRITE_ERR] = "write error",
 
 	/* Finishing configuration after image has been written */
-	[FPGA_MGR_STATE_WRITE_COMPLETE] =	"write complete",
-	[FPGA_MGR_STATE_WRITE_COMPLETE_ERR] =	"write complete error",
+	[FPGA_MGR_STATE_WRITE_COMPLETE] = "write complete",
+	[FPGA_MGR_STATE_WRITE_COMPLETE_ERR] = "write complete error",
 
 	/* FPGA reports to be in normal operating mode */
-	[FPGA_MGR_STATE_OPERATING] =		"operating",
+	[FPGA_MGR_STATE_OPERATING] = "operating",
 };
 
-static ssize_t name_show(struct device *dev,
-			 struct device_attribute *attr, char *buf)
+static ssize_t name_show(struct device *dev, struct device_attribute *attr,
+			 char *buf)
 {
 	struct fpga_manager *mgr = to_fpga_manager(dev);
 
 	return sprintf(buf, "%s\n", mgr->name);
 }
 
-static ssize_t state_show(struct device *dev,
-			  struct device_attribute *attr, char *buf)
+static ssize_t state_show(struct device *dev, struct device_attribute *attr,
+			  char *buf)
 {
 	struct fpga_manager *mgr = to_fpga_manager(dev);
 
 	return sprintf(buf, "%s\n", state_str[mgr->state]);
 }
 
-static ssize_t status_show(struct device *dev,
-			   struct device_attribute *attr, char *buf)
+static ssize_t status_show(struct device *dev, struct device_attribute *attr,
+			   char *buf)
 {
 	struct fpga_manager *mgr = to_fpga_manager(dev);
 	u64 status;
@@ -652,14 +653,43 @@ static ssize_t status_show(struct device *dev,
 	return len;
 }
 
+static ssize_t firmware_store(struct device *dev, struct device_attribute *attr,
+			      const char *buf, size_t count)
+{
+	struct fpga_manager *mgr = to_fpga_manager(dev);
+	unsigned int len;
+	char image_name[NAME_MAX];
+	int ret;
+
+	/* struct with information about the FPGA image to program. */
+	struct fpga_image_info info = { 0 };
+
+	info.header_size = mgr->mops->initial_header_size;
+
+	/* lose terminating \n */
+	strcpy(image_name, buf);
+	len = strlen(image_name);
+	if (image_name[len - 1] == '\n')
+		image_name[len - 1] = 0;
+
+	ret = fpga_mgr_firmware_load(mgr, &info, image_name);
+	if (ret)
+		return ret;
+
+	return count;
+}
+
 static DEVICE_ATTR_RO(name);
 static DEVICE_ATTR_RO(state);
 static DEVICE_ATTR_RO(status);
+
+static DEVICE_ATTR_WO(firmware);
 
 static struct attribute *fpga_mgr_attrs[] = {
 	&dev_attr_name.attr,
 	&dev_attr_state.attr,
 	&dev_attr_status.attr,
+	&dev_attr_firmware.attr,
 	NULL,
 };
 ATTRIBUTE_GROUPS(fpga_mgr);
@@ -776,14 +806,16 @@ EXPORT_SYMBOL_GPL(fpga_mgr_unlock);
  * Return: pointer to struct fpga_manager pointer or ERR_PTR()
  */
 struct fpga_manager *
-fpga_mgr_register_full(struct device *parent, const struct fpga_manager_info *info)
+fpga_mgr_register_full(struct device *parent,
+		       const struct fpga_manager_info *info)
 {
 	const struct fpga_manager_ops *mops = info->mops;
 	struct fpga_manager *mgr;
 	int id, ret;
 
 	if (!mops) {
-		dev_err(parent, "Attempt to register without fpga_manager_ops\n");
+		dev_err(parent,
+			"Attempt to register without fpga_manager_ops\n");
 		return ERR_PTR(-EINVAL);
 	}
 
@@ -858,9 +890,9 @@ EXPORT_SYMBOL_GPL(fpga_mgr_register_full);
  *
  * Return: pointer to struct fpga_manager pointer or ERR_PTR()
  */
-struct fpga_manager *
-fpga_mgr_register(struct device *parent, const char *name,
-		  const struct fpga_manager_ops *mops, void *priv)
+struct fpga_manager *fpga_mgr_register(struct device *parent, const char *name,
+				       const struct fpga_manager_ops *mops,
+				       void *priv)
 {
 	struct fpga_manager_info info = { 0 };
 
@@ -910,7 +942,8 @@ static void devm_fpga_mgr_unregister(struct device *dev, void *res)
  * function will be called automatically when the managing device is detached.
  */
 struct fpga_manager *
-devm_fpga_mgr_register_full(struct device *parent, const struct fpga_manager_info *info)
+devm_fpga_mgr_register_full(struct device *parent,
+			    const struct fpga_manager_info *info)
 {
 	struct fpga_mgr_devres *dr;
 	struct fpga_manager *mgr;
@@ -945,9 +978,10 @@ EXPORT_SYMBOL_GPL(devm_fpga_mgr_register_full);
  * unregister function will be called automatically when the managing
  * device is detached.
  */
-struct fpga_manager *
-devm_fpga_mgr_register(struct device *parent, const char *name,
-		       const struct fpga_manager_ops *mops, void *priv)
+struct fpga_manager *devm_fpga_mgr_register(struct device *parent,
+					    const char *name,
+					    const struct fpga_manager_ops *mops,
+					    void *priv)
 {
 	struct fpga_manager_info info = { 0 };
 

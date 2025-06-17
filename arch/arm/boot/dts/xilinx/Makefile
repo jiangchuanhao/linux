@@ -14,4 +14,6 @@ dtb-$(CONFIG_ARCH_ZYNQ) += \
 	zynq-zturn.dtb \
 	zynq-zturn-v5.dtb \
 	zynq-zybo.dtb \
-	zynq-zybo-z7.dtb
+	zynq-zybo-z7.dtb \
+	zynq-zc7010-spray0.dtb \
+	zynq-zc701_antminer_t9.dtb
