@@ -1,0 +1,172 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (c) 2016 Endless Computers, Inc.
+ * Author: Carlo Caione <carlo@endlessm.com>
+ */
+
+/dts-v1/;
+
+#include "meson-gxl-s905x-p212.dtsi"
+#include <dt-bindings/sound/meson-aiu.h>
+
+/ {
+	compatible = "zte,b860av21", "amlogic,p212", "amlogic,s905x", "amlogic,meson-gxl";
+	model = "ZTE B860AV2.1 (Amlogic S905L)";
+
+	dio2133: analog-amplifier {
+		compatible = "simple-audio-amplifier";
+		sound-name-prefix = "AU2";
+		VCC-supply = <&hdmi_5v>;
+		enable-gpios = <&gpio GPIOH_5 GPIO_ACTIVE_HIGH>;
+	};
+
+	cvbs-connector {
+		compatible = "composite-video-connector";
+
+		port {
+			cvbs_connector_in: endpoint {
+				remote-endpoint = <&cvbs_vdac_out>;
+			};
+		};
+	};
+
+	hdmi-connector {
+		compatible = "hdmi-connector";
+		type = "a";
+
+		port {
+			hdmi_connector_in: endpoint {
+				remote-endpoint = <&hdmi_tx_tmds_out>;
+			};
+		};
+	};
+
+	sound {
+		compatible = "amlogic,gx-sound-card";
+		model = "S905X-P212";
+		audio-aux-devs = <&dio2133>;
+		audio-widgets = "Line", "Lineout";
+		audio-routing = "AU2 INL", "ACODEC LOLN",
+				"AU2 INR", "ACODEC LORN",
+				"Lineout", "AU2 OUTL",
+				"Lineout", "AU2 OUTR";
+		assigned-clocks = <&clkc CLKID_MPLL0>,
+				  <&clkc CLKID_MPLL1>,
+				  <&clkc CLKID_MPLL2>;
+		assigned-clock-parents = <0>, <0>, <0>;
+		assigned-clock-rates = <294912000>,
+				       <270950400>,
+				       <393216000>;
+		dai-link-0 {
+			sound-dai = <&aiu AIU_CPU CPU_I2S_FIFO>;
+		};
+
+		dai-link-1 {
+			sound-dai = <&aiu AIU_CPU CPU_I2S_ENCODER>;
+			dai-format = "i2s";
+			mclk-fs = <256>;
+
+			codec-0 {
+				sound-dai = <&aiu AIU_HDMI CTRL_I2S>;
+			};
+
+			codec-1 {
+				sound-dai = <&aiu AIU_ACODEC CTRL_I2S>;
+			};
+		};
+
+		dai-link-2 {
+			sound-dai = <&aiu AIU_HDMI CTRL_OUT>;
+
+			codec-0 {
+				sound-dai = <&hdmi_tx>;
+			};
+		};
+
+		dai-link-3 {
+			sound-dai = <&aiu AIU_ACODEC CTRL_OUT>;
+
+			codec-0 {
+				sound-dai = <&acodec>;
+			};
+		};
+	};
+};
+
+&acodec {
+	AVDD-supply = <&vddio_ao18>;
+	status = "okay";
+};
+
+&aiu {
+	status = "okay";
+};
+
+&cec_AO {
+	status = "okay";
+	pinctrl-0 = <&ao_cec_pins>;
+	pinctrl-names = "default";
+	hdmi-phandle = <&hdmi_tx>;
+};
+
+&cvbs_vdac_port {
+	cvbs_vdac_out: endpoint {
+		remote-endpoint = <&cvbs_connector_in>;
+	};
+};
+
+&hdmi_tx {
+	status = "okay";
+	pinctrl-0 = <&hdmi_hpd_pins>, <&hdmi_i2c_pins>;
+	pinctrl-names = "default";
+	hdmi-supply = <&hdmi_5v>;
+};
+
+&hdmi_tx_tmds_port {
+	hdmi_tx_tmds_out: endpoint {
+		remote-endpoint = <&hdmi_connector_in>;
+	};
+};
+
+/* This UART is brought out to the DB9 connector */
+&uart_AO {
+	status = "okay";
+};
+
+/* ==========================================================================
+ * ZTE B860AV2.1 (Amlogic S905L / S905L-B) board specific bits
+ *
+ * WiFi 实测结论 (2026-10-14, 主线 6.7.0-rc5)：
+ *   · 模组 RTL8189FTV 挂在 sd_emmc_a（GPIOX_0..5），SDIO ID = 024c:f179
+ *   · 模组使能脚是 GPIODV_27（pin 76），高有效 —— 这是本板与 p212 参考板
+ *     最大的差别：p212 的 sdio_pwrseq 用 GPIOX_6 当 WL_REG_ON，本板不是
+ *   · 使能必须从开机起保持为高，否则 SDIO 总线上扫不到任何器件
+ *   · 32.768kHz LPO 非必需：实测关掉 PWM_E 仍能正常枚举
+ *   · GPIODV_27 若要改由驱动控制，把 hog 换成带 gpio 的 regulator-fixed 即可
+ * ========================================================================== */
+
+/* p212 参考板的 sdio_pwrseq 在本板是错的（GPIOX_6 并非模组使能），一并去掉，
+ * 免得它把 GPIOX_6 拉住、还依赖 wifi32k/PWM_E */
+&sd_emmc_a {
+	/delete-property/ mmc-pwrseq;
+};
+
+/ {
+	/delete-node/ sdio-pwrseq;
+};
+
+/* 本板真正的 WiFi 使能：GPIODV_27，高有效，开机即拉高并一直保持。
+ * 注：gpio-hog 必须是 gpio 控制器节点的子节点，放根节点下不会生效 */
+&gpio {
+	wifi_en_hog: wifi-en-hog {
+		gpio-hog;
+		gpios = <GPIODV_27 GPIO_ACTIVE_HIGH>;
+		output-high;
+		line-name = "wifi-en";
+	};
+};
+
+/* 这条 SDIO 总线上是 Realtek 的芯片，别让 brcmfmac 去抢 */
+&brcmf {
+	/delete-property/ compatible;
+};
